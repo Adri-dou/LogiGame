@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_unsigned.all;
 use IEEE.NUMERIC_STD.ALL;
 
 entity UAL is
@@ -60,8 +61,7 @@ begin
         -- S = A XOR B
         when "0111" => 
             S <= "0000" & (A xor B);
-        
-        -- Décalage droit A avec SR_IN_L
+          -- Décalage droit A avec SR_IN_L
         when "1000" => 
             SR_OUT_R <= A(0);                      -- Bit sortant
             temp_shift <= SR_IN_L & A;             -- Décalage avec retenue
@@ -83,12 +83,11 @@ begin
         when "1011" => 
             SR_OUT_L <= B(3);                     -- Bit sortant
             temp_shift <= B & SR_IN_R;            -- Décalage avec retenue
-            S <= "0000" & temp_shift(3 downto 0); -- Résultat
-        
-        -- Addition avec retenue entrante
+            S <= "0000" & temp_shift(3 downto 0); -- Résultat          -- Addition avec retenue entrante
         when "1100" => 
-            temp_add_sub <= std_logic_vector(unsigned('0' & A) + unsigned('0' & B) + unsigned'('0' & SR_IN_R));
-            S <= "000" & temp_add_sub;
+            temp_add_sub <= std_logic_vector(unsigned('0' & A) + unsigned('0' & B) + unsigned("0000" & SR_IN_R));
+            S(4 downto 0) <= temp_add_sub;
+            S(7 downto 5) <= "000";
             SR_OUT_R <= temp_add_sub(4);          -- Retenue
         
         -- Addition sans retenue
@@ -100,11 +99,10 @@ begin
         when "1110" => 
             temp_add_sub <= std_logic_vector(unsigned('0' & A) - unsigned('0' & B));
             S <= "0000" & temp_add_sub(3 downto 0);
-        
-        -- Multiplication
+          -- Multiplication
         when "1111" => 
             temp_mult <= std_logic_vector(unsigned(A) * unsigned(B));
-            S <= temp_mult;
+            S <= temp_mult;  -- Resultat de 8 bits (4 bits x 4 bits = 8 bits max)
         
         -- Cas par défaut (NOP)
         when others => 
