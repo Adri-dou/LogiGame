@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.std_logic_signed.all;
-use IEEE.NUMERIC_STD.ALL;
+use IEEE.STD_LOGIC_SIGNED.ALL;
 
 entity UAL is
     Port (
@@ -17,9 +16,6 @@ entity UAL is
 end UAL;
 
 architecture Behavioral of UAL is
-    signal temp_shift    : STD_LOGIC_VECTOR(4 downto 0); -- Pour les décalages avec retenue
-    signal temp_add_sub  : STD_LOGIC_VECTOR(4 downto 0); -- Addition/soustraction avec retenue
-    signal temp_mult     : STD_LOGIC_VECTOR(7 downto 0); -- Multiplication 4x4 bits
 begin
 
 process(A, B, SR_IN_L, SR_IN_R, SEL_FCT)
@@ -61,52 +57,52 @@ begin
         -- S = A XOR B
         when "0111" => 
             S <= "0000" & (A xor B);
+
           -- Décalage droit A avec SR_IN_L
-        when "1000" => 
-            SR_OUT_R <= A(0);                      -- Bit sortant
-            temp_shift <= SR_IN_L & A;             -- Décalage avec retenue
-            S <= "0000" & temp_shift(4 downto 1);  -- Résultat
+        when "1000" =>
+            SR_OUT_R <= A(0);                     -- Bit sortant
+            S(3) <= SR_IN_L;                      -- Bit entrant
+            S(2 downto 0) <= A(3 downto 1);       -- Décalage
         
         -- Décalage gauche A avec SR_IN_R
         when "1001" => 
             SR_OUT_L <= A(3);                     -- Bit sortant
-            temp_shift <= A & SR_IN_R;            -- Décalage avec retenue
-            S <= "0000" & temp_shift(3 downto 0); -- Résultat
+            S(0) <= SR_IN_R;                      -- Bit entrant
+            S(3 downto 1) <= A(2 downto 0);       -- Décalage
         
         -- Décalage droit B avec SR_IN_L
         when "1010" => 
             SR_OUT_R <= B(0);                     -- Bit sortant
-            temp_shift <= SR_IN_L & B;            -- Décalage avec retenue
-            S <= "0000" & temp_shift(4 downto 1); -- Résultat
+            S(3) <= SR_IN_L;                      -- Bit entrant
+            S(2 downto 0) <= B(3 downto 1);       -- Décalage
         
         -- Décalage gauche B avec SR_IN_R
         when "1011" => 
             SR_OUT_L <= B(3);                     -- Bit sortant
-            temp_shift <= B & SR_IN_R;            -- Décalage avec retenue
-            S <= "0000" & temp_shift(3 downto 0); -- Résultat          -- Addition avec retenue entrante
+            S(0) <= SR_IN_R;                      -- Bit entrant
+            S(3 downto 1) <= B(2 downto 0);       -- Décalage         
+    
+        
+        -- Addition avec retenue entrante
         when "1100" => 
-            temp_add_sub <= std_logic_vector(unsigned('0' & A) + unsigned('0' & B) + unsigned("0000" & SR_IN_R));
-            S(4 downto 0) <= temp_add_sub;
-            S(7 downto 5) <= "000";
-            SR_OUT_R <= temp_add_sub(4);          -- Retenue
+            S <= ("0000" & A) + ("0000" & B) + ("0000000" & SR_IN_R);
         
         -- Addition sans retenue
         when "1101" => 
-            temp_add_sub <= std_logic_vector(unsigned('0' & A) + unsigned('0' & B));
-            S <= "0000" & temp_add_sub(3 downto 0);
+            S <= ("0000" & A) + ("0000" & B);
         
         -- Soustraction
         when "1110" => 
-            temp_add_sub <= std_logic_vector(unsigned('0' & A) - unsigned('0' & B));
-            S <= "0000" & temp_add_sub(3 downto 0);
+            S <= ("0000" & A) - ("0000" & B);
+
           -- Multiplication
         when "1111" => 
-            temp_mult <= std_logic_vector(unsigned(A) * unsigned(B));
-            S <= temp_mult;  -- Resultat de 8 bits (4 bits x 4 bits = 8 bits max)
+            S <= A * B;
         
         -- Cas par défaut (NOP)
         when others => 
             S <= (others => '0');
+
     end case;
 end process;
 
