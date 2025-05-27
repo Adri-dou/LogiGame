@@ -90,9 +90,9 @@ begin
         -- Soustraction
         SEL_FCT <= "1110"; A <= "1000"; B <= "0011"; wait for 10 ns;
         report "SUB: S=" & " SR_OUT_L=" & std_logic'image(SR_OUT_L) & " SR_OUT_R=" & std_logic'image(SR_OUT_R);
-        
+
         -- Multiplication
-        SEL_FCT <= "1111"; A <= "0011"; B <= "0100"; wait for 10 ns;
+        SEL_FCT <= "1111"; A <= "0111"; B <= "0100"; wait for 10 ns;
         report "MUL: S=" & " SR_OUT_L=" & std_logic'image(SR_OUT_L) & " SR_OUT_R=" & std_logic'image(SR_OUT_R);
 
         wait;

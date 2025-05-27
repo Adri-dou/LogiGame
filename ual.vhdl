@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_SIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity UAL is
     Port (
@@ -19,8 +20,14 @@ architecture Behavioral of UAL is
 begin
 
 process(A, B, SR_IN_L, SR_IN_R, SEL_FCT)
+    -- Variables
+    variable A_sur_8bits         : std_logic_vector(7 downto 0);
+    variable B_sur_8bits         : std_logic_vector(7 downto 0);
 begin
-    -- Initialisation des retenues
+    -- Initialisation
+    A_sur_8bits := "0000" & A;
+    B_sur_8bits := "0000" & B;
+
     SR_OUT_L <= '0';
     SR_OUT_R <= '0';
     S <= (others => '0');
@@ -85,19 +92,19 @@ begin
         
         -- Addition avec retenue entrante
         when "1100" => 
-            S <= ("0000" & A) + ("0000" & B) + ("0000000" & SR_IN_R);
+            S <= A_sur_8bits + B_sur_8bits + ("0000000" & SR_IN_R);
         
         -- Addition sans retenue
         when "1101" => 
-            S <= ("0000" & A) + ("0000" & B);
+            S <= A_sur_8bits + B_sur_8bits;
         
         -- Soustraction
         when "1110" => 
-            S <= ("0000" & A) - ("0000" & B);
+            S <= A_sur_8bits - B_sur_8bits;
 
           -- Multiplication
         when "1111" => 
-            S <= A * B;
+            S <= std_logic_vector(unsigned(A) * unsigned(B));
         
         -- Cas par défaut (NOP)
         when others => 
