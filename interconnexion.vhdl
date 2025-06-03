@@ -8,7 +8,7 @@ entity interconnexion is
         A_IN, B_IN, SEL_FCT, SEL_ROUTE : in std_logic_vector (3 downto 0);
         SEL_OUT : in std_logic_vector (1 downto 0);
         SR_OUT_L, SR_OUT_R : out std_logic;
-        RES_OUT : out std_logic_vector
+        RES_OUT : out std_logic_vector (7 downto 0)
     );
 end interconnexion;
 
@@ -19,8 +19,9 @@ architecture interconnexion_arch of interconnexion is
     signal mem_CACHE1_IN, mem_CACHE2_IN : std_logic_vector (7 downto 0);
     signal mem_CACHE1_OUT, mem_CACHE2_OUT : std_logic_vector (7 downto 0);
     signal buf_SR_IN_LR_OUT : std_logic_vector (1 downto 0);
-    signal buf_SR_IN_LR_IN : std_logic_vector (1 downto 0) := SR_IN_L & SR_IN_R;
+    signal buf_SR_IN_LR_IN : std_logic_vector (1 downto 0) := "00";
     signal S_UAL : std_logic_vector (7 downto 0);
+    signal SR_OUT_LR : std_logic_vector (1 downto 0);
 -- déclaration des catégories de composants au sein de l'interconnexion
 component bufUAL is
     port (
@@ -51,16 +52,16 @@ component UAL is
         SR_OUT_L, SR_OUT_R: out STD_LOGIC
     );
 end component;
--- ajout de chaque composant
 begin
+    -- ajout de chaque composant
     UALut : UAL port map (
         A => buf_A_OUT,
         B => buf_B_OUT,
         SEL_FCT => SEL_FCT,
         SR_IN_L => buf_SR_IN_LR_OUT(1),
         SR_IN_R => buf_SR_IN_LR_OUT(0),
-        SR_OUT_L => SR_OUT_L,
-        SR_OUT_R => SR_OUT_R,
+        SR_OUT_L => SR_OUT_LR(1),
+        SR_OUT_R => SR_OUT_LR(0),
         S => S_UAL
     );
     bufferA : bufUAL port map (
@@ -94,15 +95,9 @@ begin
         reset => reset
     );
     -- processus
-    trafficGestion : process(clk, reset)
+    trafficGestion : process(clk)
     begin
-        if reset = '1' then
-            buf_A_IN <= (others => '0');
-            buf_B_IN <= (others => '0');
-            mem_CACHE1_IN <= (others => '0');
-            mem_CACHE2_IN <= (others => '0');
-            buf_SR_IN_LR_IN <= (others => '0');
-        elsif rising_edge(clk) then
+        if rising_edge(clk) then
             case SEL_ROUTE is
                 when "0000" => -- stockage A_IN dans bufA
                     buf_A_IN <= A_IN;
@@ -142,6 +137,7 @@ begin
                     mem_CACHE1_IN <= (others => '0');
                     mem_CACHE2_IN <= (others => '0');
             end case;
+        elsif falling_edge(clk) then
             case SEL_OUT is
                 when "00" => -- RES_OUT = 0
                     RES_OUT <= (others => '0');
@@ -156,4 +152,7 @@ begin
             end case;
         end if;
     end process;
+    SR_OUT_L <= SR_OUT_LR(1);
+    SR_OUT_R <= SR_OUT_LR(0);
+    buf_SR_IN_LR_IN <= SR_OUT_LR;
 end interconnexion_arch;
