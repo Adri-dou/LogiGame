@@ -33,7 +33,7 @@ begin
     end process;
     resetProcess : process
     begin
-        reset <= '0'; wait for 700 ns;
+        reset <= '0'; wait for 500 ns;
         reset <= '1'; wait;
     end process;
 
