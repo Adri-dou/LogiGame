@@ -14,9 +14,9 @@ entity memSELout is
 end memSELout;
 
 architecture memSELout_arch of memSELout is
-    begin
+begin
     bufProcess : process(clk, reset)
-        begin
+    begin
         if reset = '1' then
             S <= (others => '0');
         elsif rising_edge(clk) then

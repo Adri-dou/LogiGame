@@ -109,7 +109,6 @@ begin
         -- Cas par défaut (NOP)
         when others => 
             S <= (others => '0');
-
     end case;
 end process;
 

@@ -14,9 +14,9 @@ entity memSRin is
 end memSRin;
 
 architecture memSRin_arch of memSRin is
-    begin
+begin
     bufProcess : process(clk, reset)
-        begin
+    begin
         if reset = '1' then
             S <= (others => '0');
         elsif rising_edge(clk) then

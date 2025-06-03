@@ -14,9 +14,9 @@ entity memCache is
 end memCache;
 
 architecture memCache_arch of memCache is
-    begin
+begin
     bufProcess : process(clk, reset)
-        begin
+    begin
         if reset = '1' then
             S <= (others => '0');
         elsif rising_edge(clk) then
