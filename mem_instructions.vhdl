@@ -59,14 +59,13 @@ begin
     begin
         if reset = '1' then
             programme := (others => (others => '0'));
-        else 
-            if rising_edge(clk) then
-                SEL_FCT <= programme(to_integer(unsigned(index)))(9 downto 6);
-                SEL_ROUTE <= programme(to_integer(unsigned(index)))(5 downto 2);
-                SEL_OUT <= programme(to_integer(unsigned(index)))(1 downto 0);
-            elsif falling_edge(clk) then
-                index := std_logic_vector(unsigned(index) + to_unsigned(1, index'length));
-            end if;
+        elsif rising_edge(clk) then
+            SEL_FCT <= programme(to_integer(unsigned(index)))(9 downto 6);
+            SEL_ROUTE <= programme(to_integer(unsigned(index)))(5 downto 2);
+            SEL_OUT <= programme(to_integer(unsigned(index)))(1 downto 0);
+        end if;
+        if falling_edge(clk) then
+            index := std_logic_vector(unsigned(index) + to_unsigned(1, index'length));
         end if;
     end process;
 end mem_instruct_Arch;
